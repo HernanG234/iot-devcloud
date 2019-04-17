@@ -4,7 +4,7 @@ void BaseDetection::submitRequest()
 {
     if (! this -> enabled() || nullptr == this -> requests[this -> inputRequestIdx]) return;
     this -> requests[this -> inputRequestIdx]->StartAsync();
-    this -> submittedRequests.push(this -> requests[this -> inputRequestIdx]);
+    this -> submittedRequests.push_back(this -> requests[this -> inputRequestIdx]);
     (this -> inputRequestIdx)++;
     if (this-> inputRequestIdx >= this -> maxSubmittedRequests) {
 	   this -> inputRequestIdx = 0;
@@ -24,7 +24,7 @@ void BaseDetection::wait()
     if (nullptr == this -> outputRequest) {
         if (this -> submittedRequests.size() < 1) return;
         this -> outputRequest = this -> submittedRequests.front();
-        this -> submittedRequests.pop();
+        this -> submittedRequests.pop_back();
     }
     this -> outputRequest->Wait(InferenceEngine::IInferRequest::WaitMode::RESULT_READY);
 }
@@ -69,13 +69,13 @@ void BaseDetection::run_inferrence(FramePipelineFifo *in_fifo){
     FramePipelineFifo& in = *in_fifo; 
     if (!in.empty() && (this ->canSubmitRequest())) {
         FramePipelineFifoItem ps0i = in.front();
-        in.pop();
+        in.pop_back();
         for(auto &&  i: ps0i.batchOfInputFrames){
             cv::Mat* curFrame = i;
             this -> enqueue(*curFrame);
         }
         this -> submitRequest();
-        this -> S1toS2.push(ps0i);
+        this -> S1toS2.push_back(ps0i);
         this -> next_pipe = true;
     }
 }
@@ -87,7 +87,7 @@ void BaseDetection::run_inferrence(FramePipelineFifo *i, FramePipelineFifo *o2){
         FramePipelineFifo& in = this -> S1toS2; 
         FramePipelineFifo& out2 = *o2;
         FramePipelineFifoItem i2 = in.back();
-        out2.push(i2);
+        out2.push_back(i2);
     }
 }
 
@@ -99,7 +99,7 @@ void BaseDetection::wait_results(FramePipelineFifo *o){
     if (((this -> maxSubmittedRequests == 1) && this -> requestsInProcess()) || this -> resultIsReady()) {
         this -> wait();
         FramePipelineFifoItem ps0s1i = in.front();
-        in.pop();
+        in.pop_back();
         this -> fetchResults(ps0s1i.batchOfInputFrames.size());
         // prepare a FramePipelineFifoItem for each batched frame to get its detection results
         std::vector<FramePipelineFifoItem> batchedFifoItems;
@@ -122,7 +122,7 @@ void BaseDetection::wait_results(FramePipelineFifo *o){
             item.numVehiclesInferred = 0;
             item.vehicleDetectionDone = true;
             item.pedestriansDetectionDone = false;
-            out.push(item);
+            out.push_back(item);
         }
     }
 }

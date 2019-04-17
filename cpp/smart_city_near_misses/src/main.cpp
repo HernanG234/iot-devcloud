@@ -253,10 +253,10 @@ int main(int argc, char *argv[]) {
         cv::Mat* inputFrames = new cv::Mat[maxNumInputFrames];
         cv::Mat* inputFrames2 = new cv::Mat[maxNumInputFrames];
 
-        std::queue<cv::Mat*> inputFramePtrs, inputFramePtrs_clean;
+        std::vector<cv::Mat*> inputFramePtrs, inputFramePtrs_clean;
         for(int fi = 0; fi < maxNumInputFrames; fi++) {
-            inputFramePtrs.push(&inputFrames[fi]);
-            inputFramePtrs_clean.push(&inputFrames2[fi]);
+            inputFramePtrs.push_back(&inputFrames[fi]);
+            inputFramePtrs_clean.push_back(&inputFrames2[fi]);
         }
 
 	//-----------------------Define regions of interest-----------------------------------------------------
@@ -367,8 +367,8 @@ int main(int argc, char *argv[]) {
                     if (totalFrames > 0) {
                         curFrame = inputFramePtrs.front();
 				        curFrame_clean = inputFramePtrs_clean.front();
-				        inputFramePtrs.pop();
-                        inputFramePtrs_clean.pop();
+				        inputFramePtrs.pop_back();
+                        inputFramePtrs_clean.pop_back();
                         if(FLAGS_show_selection){
                             haveMoreFrames = cap.read(*curFrame_clean);
                             if(!haveMoreFrames){
@@ -408,7 +408,7 @@ int main(int argc, char *argv[]) {
                     WriteProgress(progress_data, totalFrames, totalLength, prog_t1);
                     firstFrame = false;
                 }
-                pipeS0Fifo.push(ps0);
+                pipeS0Fifo.push_back(ps0);
             }
 
             if(vp_enabled){
@@ -444,9 +444,9 @@ int main(int argc, char *argv[]) {
 
                 if(vp_enabled){
                     ps3s4i = pipeS3toS4Fifo.front();
-                    pipeS3toS4Fifo.pop();
+                    pipeS3toS4Fifo.pop_back();
                     ps1s4i = pipeS1toS4Fifo.front();
-                    pipeS1toS4Fifo.pop();
+                    pipeS1toS4Fifo.pop_back();
 
                     outputFrame = *(ps3s4i.outputFrame);
                     outputFrame2 = ps3s4i.outputFrame;
@@ -476,7 +476,7 @@ int main(int argc, char *argv[]) {
 
                 if(yolo_enabled){
                     ps1ys4i = pipeS1ytoS4Fifo.front();
-                    pipeS1ytoS4Fifo.pop();
+                    pipeS1ytoS4Fifo.pop_back();
 
                     outputFrame = *(ps1ys4i.outputFrame);
                     outputFrame2 = ps1ys4i.outputFrame;
@@ -507,7 +507,7 @@ int main(int argc, char *argv[]) {
 
                 if(vp2_enabled){
                     ps1ys4i = pipeS1ytoS4Fifo.front();
-                    pipeS1ytoS4Fifo.pop();
+                    pipeS1ytoS4Fifo.pop_back();
 
                     outputFrame = *(ps1ys4i.outputFrame);
                     outputFrame2 = ps1ys4i.outputFrame;
@@ -664,8 +664,8 @@ int main(int argc, char *argv[]) {
 
                 // done with frame buffer, return to queue
                 
-                inputFramePtrs.push(outputFrame2);
-                inputFramePtrs_clean.push(outputFrame2_clean);
+                inputFramePtrs.push_back(outputFrame2);
+                inputFramePtrs_clean.push_back(outputFrame2_clean);
 
             }
 

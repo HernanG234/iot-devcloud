@@ -11,7 +11,6 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <queue>
 #include <utility>
 
 #include <inference_engine.hpp>
@@ -44,7 +43,7 @@ typedef struct {
             int numPedestriansInferred;
             std::vector<std::pair<cv::Rect, int>> resultsLocations;
 } FramePipelineFifoItem;
-typedef std::queue<FramePipelineFifoItem> FramePipelineFifo;
+typedef std::vector<FramePipelineFifoItem> FramePipelineFifo;
 
 
 class BaseDetection {
@@ -60,7 +59,7 @@ class BaseDetection {
     int inputRequestIdx;
     InferenceEngine::InferRequest::Ptr outputRequest;
     std::vector<InferenceEngine::InferRequest::Ptr> requests;
-    std::queue<InferenceEngine::InferRequest::Ptr> submittedRequests;
+    std::vector<InferenceEngine::InferRequest::Ptr> submittedRequests;
     bool auto_resize;
     bool next_pipe;
     float detection_threshold;
