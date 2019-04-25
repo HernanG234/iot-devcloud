@@ -53,8 +53,8 @@ void WriteStats(std::string stats_data, int totalFrames, double totalTime)
 {
        std::ofstream stats;
        stats.open(stats_data);
-       stats<<std::to_string(totalFrames)+'\n';
        stats<<totalTime<<'\n';
+       stats<<std::to_string(totalFrames)+'\n';
        stats.close();
 }
 
